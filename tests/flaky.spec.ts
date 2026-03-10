@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { HomePage } from '@pages/home.page';
 import { Challenge1Page } from '@pages/challenge1.page';
 import { Challenge2Page } from '@pages/challenge2.page';
+import { MyAccountMenuComponent, MyAccountOption } from '@pages/components/my-account-menu.component';
 
 const testEmailAddress = 'test1@example.com'
 const testPassword = 'password1'
@@ -61,9 +62,7 @@ test('Login animated form and logout sucessfully @c2', async ({ page }) => {
   await challenge2Page.loginAs(testEmailAddress, testPassword);
   await challenge2Page.expectDashboardLoaded(testEmailAddress);
 
-  await challenge2Page.openMyAccountMenu()
-
-  await page.locator('#logoutOption').click();
+  await challenge2Page.myAccountMenu.navigate(MyAccountOption.Logout);
 });
 
 // Fix the Forgot password test and add proper assertions

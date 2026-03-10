@@ -1,5 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base.page';
+import { MyAccountMenuComponent } from './components/my-account-menu.component';
+
 
 export class Challenge2Page extends BasePage {
     private readonly submitButton: Locator;
@@ -10,6 +12,8 @@ export class Challenge2Page extends BasePage {
     private readonly dashboardHeaderText: Locator;
     private readonly dashboardUserEmail: Locator;
     private readonly dashboardMyAccountButton: Locator;
+    
+    public readonly myAccountMenu: MyAccountMenuComponent;
 
     constructor(page: Page) {
         super(page)
@@ -22,6 +26,8 @@ export class Challenge2Page extends BasePage {
         this.dashboardHeaderText = page.getByText('Welcome!');
         this.dashboardUserEmail = page.locator('#userEmail');
         this.dashboardMyAccountButton = page.locator('#menuButton');
+
+        this.myAccountMenu = new MyAccountMenuComponent(page)
     }
 
     async navigate() {
@@ -49,10 +55,5 @@ export class Challenge2Page extends BasePage {
           await expect(this.dashboardHeaderText).toBeVisible();
           await expect(this.dashboardUserEmail).toContainText(`Logged in as: ${loggedInEmail}`);
           await expect(this.dashboardMyAccountButton).toBeVisible();
-    }
-
-    async openMyAccountMenu() {
-        const initializedMenuBtn = this.page.locator('#menuButton[data-initialized="true"]');
-        await initializedMenuBtn.click();
     }
 } 
