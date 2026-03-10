@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test';
+import { HomePage } from '@pages/home.page';
 
 const testEmailAddress = 'test1@example.com'
 const testPassword = 'password1'
 
-//Fix the below scripts to work consistently and do not use static waits. Add proper assertions to the tests
+// Fix the below scripts to work consistently and do not use static waits. Add proper assertions to the tests
 // Login 3 times sucessfully
 
 // VF: A simple solution based on observations of how the DOM structure changes after login
@@ -16,13 +17,14 @@ const testUsers = [
 ]
 for (const user of testUsers) {
   test(`Login multiple times, sucessfully for user ${user.id} @c1`, async ({ page }) => {
+    const homePage = new HomePage(page)
     const submitButton = page.locator('#submitButton');
     const submitButtonLoading = page.locator('.submit-btn.loading');
     const successMessage = page.locator(`#successMessage`);
     const visibleSuccessMessage = page.locator('.success-message.show');
 
-    await page.goto('/');
-    await page.locator(`//*[@href='/challenge1.html']`).click();
+    await homePage.navigate()
+    await homePage.goToChallenge(1)
 
     // Login multiple times
     // VF: Check Sign In button is shown in initial state only
@@ -51,11 +53,12 @@ for (const user of testUsers) {
 // sometimes you have to use it. Since the animation takes 7s which is longer than our global 5s timeout,
 // we can change the default global waits in config but it's not feasible for the case
 test('Login animated form and logout sucessfully @c2', async ({ page }) => {
+  const homePage = new HomePage(page)
   const loginForm = page.locator('#loginForm');
   const initializedMenuBtn = page.locator('#menuButton[data-initialized="true"]');
 
-  await page.goto('/');
-  await page.locator(`//*[@href='/challenge2.html']`).click();
+  await homePage.navigate()
+  await homePage.goToChallenge(2)
 
   await expect(loginForm).toBeVisible();
 
@@ -73,8 +76,9 @@ test('Login animated form and logout sucessfully @c2', async ({ page }) => {
 
 // VF: This solution is better - no implicit waits added, animation for the element is turned off
 test('Login animated form and logout sucessfully @c2b', async ({ page }) => {
-  await page.goto('/');
-  await page.locator(`//*[@href='/challenge2.html']`).click();
+  const homePage = new HomePage(page)
+  await homePage.navigate()
+  await homePage.goToChallenge(2)
 
   const loginForm = page.locator('#loginForm');
   await expect(loginForm).toBeVisible();
@@ -102,12 +106,13 @@ test('Login animated form and logout sucessfully @c2b', async ({ page }) => {
 // VF: Shared locator values for email fields for both Login and Reset Password forms
 // Making sure the correct form is loaded by form-title and Reset Password button presence
 test('Forgot password @c3', async ({ page }) => {
+  const homePage = new HomePage(page)
   const loginForm = page.getByRole('heading', { name: 'Login' });
   const resetPasswordButton = page.getByRole('button', { name: 'Reset Password' });
   const closeButton = page.getByRole('button', { name: 'Close' });
 
-  await page.goto('/');
-  await page.locator(`//*[@href='/challenge3.html']`).click();
+  await homePage.navigate()
+  await homePage.goToChallenge(3)
 
   await expect(loginForm).toBeVisible();
 
@@ -131,8 +136,9 @@ test('Forgot password @c3', async ({ page }) => {
 
 // Fix the login test. Hint: There is a global variable that you can use to check if the app is in ready state
 test('Login and logout @c4', async ({ page }) => {
-  await page.goto('/');
-  await page.locator(`//*[@href='/challenge4.html']`).click();
+  const homePage = new HomePage(page)
+  await homePage.navigate()
+  await homePage.goToChallenge(4)
 
   // VF: waiting global variable isAppReady to switch to true
   await page.waitForFunction(() => window.isAppReady === true);
