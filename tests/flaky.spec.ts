@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { HomePage } from '@pages/home.page';
+import { Challenge1Page } from '@pages/challenge1.page';
+import { Challenge2Page } from '@pages/challenge2.page';
 
 const testEmailAddress = 'test1@example.com'
 const testPassword = 'password1'
 
-// Fix the below scripts to work consistently and do not use static waits. Add proper assertions to the tests
+//Fix the below scripts to work consistently and do not use static waits. Add proper assertions to the tests
 // Login 3 times sucessfully
 
 // VF: A simple solution based on observations of how the DOM structure changes after login
@@ -48,55 +50,18 @@ for (const user of testUsers) {
   });
 }
 
-// Login and logout successfully with animated form and delayed loading
-// VF: I don't really like this solution because it relies on an implicit wait for the animation part,
-// sometimes you have to use it. Since the animation takes 7s which is longer than our global 5s timeout,
-// we can change the default global waits in config but it's not feasible for the case
 test('Login animated form and logout sucessfully @c2', async ({ page }) => {
-  const homePage = new HomePage(page)
-  const loginForm = page.locator('#loginForm');
-  const initializedMenuBtn = page.locator('#menuButton[data-initialized="true"]');
+  const homePage = new HomePage(page);
+  const challenge2Page = new Challenge2Page(page);
 
-  await homePage.navigate()
-  await homePage.goToChallenge(2)
+  await homePage.navigate();
+  await homePage.goToChallenge(2);
 
-  await expect(loginForm).toBeVisible();
+  await challenge2Page.expectLoaded()
+  await challenge2Page.loginAs(testEmailAddress, testPassword);
+  await challenge2Page.expectDashboardLoaded(testEmailAddress);
 
-  await page.locator('#email').fill(testEmailAddress);
-  await page.locator('#password').fill(testPassword);
-  await page.locator('#submitButton').click({ timeout: 10000 });
-
-  await expect(page.locator('#dashboard')).toBeVisible();
-  await expect(page.locator('#userEmail')).toContainText(testEmailAddress);
-  await expect(page.locator('div.dashboard')).toBeVisible();
-
-  await initializedMenuBtn.click();
-  await page.locator('#logoutOption').click();
-});
-
-// VF: This solution is better - no implicit waits added, animation for the element is turned off
-test('Login animated form and logout sucessfully @c2b', async ({ page }) => {
-  const homePage = new HomePage(page)
-  await homePage.navigate()
-  await homePage.goToChallenge(2)
-
-  const loginForm = page.locator('#loginForm');
-  await expect(loginForm).toBeVisible();
-
-  await page.locator('#email').fill(testEmailAddress);
-  await page.locator('#password').fill(testPassword);
-
-  const submitBtn = page.locator('#submitButton');
-  await submitBtn.evaluate(el => el.style.animationDuration = '0s');
-  await submitBtn.click();
-
-  await expect(page.locator('#dashboard')).toBeVisible();
-  await expect(page.getByText('Welcome!')).toBeVisible();
-  await expect(page.locator('#userEmail')).toContainText(`Logged in as: ${testEmailAddress}`);
-  await expect(page.locator('#menuButton')).toBeVisible();
-
-  const initializedMenuBtn = page.locator('#menuButton[data-initialized="true"]');
-  await initializedMenuBtn.click();
+  await challenge2Page.openMyAccountMenu()
 
   await page.locator('#logoutOption').click();
 });
